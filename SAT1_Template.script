@@ -1,0 +1,184 @@
+%General Mission Analysis Tool (GMAT) Script
+%Template v2 - Generado automaticamente por ejecutar_simulaciones_v2.py
+%Escenario : @@NOMBRE_ESCENARIO@@
+%Consumo   : @@CONSUMO_W@@W base / @@CONSUMO_TX@@W en pase TX
+%Eficiencia: @@EFICIENCIA@@
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+Create Spacecraft Sat1;
+Sat1.DateFormat = UTCGregorian;
+Sat1.Epoch = '22 Apr 2026 14:30:00.000';
+Sat1.CoordinateSystem = EarthMJ2000Eq;
+Sat1.DisplayStateType = Keplerian;
+Sat1.SMA = 6978.136299999999;
+Sat1.ECC = 0.0009999999999998818;
+Sat1.INC = 98.59999999999999;
+Sat1.RAAN = 13;
+Sat1.AOP = 360;
+Sat1.TA = 360;
+Sat1.DryMass = 3;
+Sat1.Cd = 2.2;
+Sat1.Cr = 1.8;
+Sat1.DragArea = 0.03;
+Sat1.SRPArea = 0.03;
+Sat1.SPADDragScaleFactor = 1;
+Sat1.SPADSRPScaleFactor = 1;
+Sat1.AtmosDensityScaleFactor = 1;
+Sat1.ExtendedMassPropertiesModel = 'None';
+Sat1.NAIFId = -10005001;
+Sat1.NAIFIdReferenceFrame = -9005001;
+Sat1.OrbitColor = Red;
+Sat1.TargetColor = Teal;
+Sat1.OrbitErrorCovariance = [ 1e+70 0 0 0 0 0 ; 0 1e+70 0 0 0 0 ; 0 0 1e+70 0 0 0 ; 0 0 0 1e+70 0 0 ; 0 0 0 0 1e+70 0 ; 0 0 0 0 0 1e+70 ];
+Sat1.CdSigma = 1e+70;
+Sat1.CrSigma = 1e+70;
+Sat1.Id = 'SatId';
+Sat1.Attitude = CoordinateSystemFixed;
+Sat1.SPADSRPInterpolationMethod = Bilinear;
+Sat1.SPADSRPScaleFactorSigma = 1e+70;
+Sat1.SPADDragInterpolationMethod = Bilinear;
+Sat1.SPADDragScaleFactorSigma = 1e+70;
+Sat1.AtmosDensityScaleFactorSigma = 1e+70;
+Sat1.ModelFile = 'aura.3ds';
+Sat1.ModelOffsetX = 0;
+Sat1.ModelOffsetY = 0;
+Sat1.ModelOffsetZ = 0;
+Sat1.ModelRotationX = 0;
+Sat1.ModelRotationY = 0;
+Sat1.ModelRotationZ = 0;
+Sat1.ModelScale = 1;
+Sat1.AttitudeDisplayStateType = 'Quaternion';
+Sat1.AttitudeRateDisplayStateType = 'AngularVelocity';
+Sat1.AttitudeCoordinateSystem = EarthMJ2000Eq;
+Sat1.EulerAngleSequence = '321';
+
+%----------------------------------------
+%---------- Ground Station (UNDAV)
+%----------------------------------------
+Create GroundStation UNDAV_Station;
+UNDAV_Station.OrbitColor = Thistle;
+UNDAV_Station.TargetColor = DarkGray;
+UNDAV_Station.CentralBody = Earth;
+UNDAV_Station.StateType = Spherical;
+UNDAV_Station.HorizonReference = Sphere;
+UNDAV_Station.Location1 = -34.66;
+UNDAV_Station.Location2 = 301.61;
+UNDAV_Station.Location3 = 0.01;
+UNDAV_Station.Id = 'StationId';
+UNDAV_Station.IonosphereModel = 'None';
+UNDAV_Station.TroposphereModel = 'None';
+UNDAV_Station.DataSource = 'Constant';
+UNDAV_Station.Temperature = 295.1;
+UNDAV_Station.Pressure = 1013.5;
+UNDAV_Station.Humidity = 55;
+UNDAV_Station.MinimumElevationAngle = 7;
+
+%----------------------------------------
+%---------- ForceModel y Propagador
+%----------------------------------------
+Create ForceModel EarthPointProp_ForceModel;
+EarthPointProp_ForceModel.CentralBody = Earth;
+EarthPointProp_ForceModel.PrimaryBodies = {Earth};
+EarthPointProp_ForceModel.Drag.AtmosphereModel = JacchiaRoberts;
+EarthPointProp_ForceModel.SRP = On;
+EarthPointProp_ForceModel.RelativisticCorrection = Off;
+EarthPointProp_ForceModel.ErrorControl = RSSStep;
+EarthPointProp_ForceModel.GravityField.Earth.Degree = 4;
+EarthPointProp_ForceModel.GravityField.Earth.Order = 4;
+EarthPointProp_ForceModel.GravityField.Earth.StmLimit = 100;
+EarthPointProp_ForceModel.GravityField.Earth.PotentialFile = 'JGM2.cof';
+EarthPointProp_ForceModel.GravityField.Earth.TideModel = 'None';
+
+Create Propagator EarthPointProp;
+EarthPointProp.FM = EarthPointProp_ForceModel;
+EarthPointProp.Type = RungeKutta89;
+EarthPointProp.InitialStepSize = 60;
+EarthPointProp.Accuracy = 9.999999999999999e-12;
+EarthPointProp.MinStep = 0.001;
+EarthPointProp.MaxStep = 2700;
+EarthPointProp.MaxStepAttempts = 50;
+EarthPointProp.StopIfAccuracyIsViolated = true;
+
+%----------------------------------------
+%---------- Eclipse Locator
+%----------------------------------------
+Create EclipseLocator EclipseSat1;
+EclipseSat1.Spacecraft = Sat1;
+EclipseSat1.Filename = '@@NOMBRE_ESCENARIO@@_Eclipses.txt';
+EclipseSat1.OccultingBodies = {Earth};
+EclipseSat1.InputEpochFormat = 'TAIModJulian';
+EclipseSat1.InitialEpoch = '21545';
+EclipseSat1.StepSize = 10;
+EclipseSat1.FinalEpoch = '21545.138';
+EclipseSat1.UseLightTimeDelay = true;
+EclipseSat1.UseStellarAberration = true;
+EclipseSat1.WriteReport = true;
+EclipseSat1.RunMode = Automatic;
+EclipseSat1.UseEntireInterval = true;
+EclipseSat1.EclipseTypes = {'Umbra', 'Penumbra'};
+
+%----------------------------------------
+%---------- Contact Locator
+%----------------------------------------
+Create ContactLocator ContactoUNDAV;
+ContactoUNDAV.Target = Sat1;
+ContactoUNDAV.Filename = '@@NOMBRE_ESCENARIO@@_Contactos.txt';
+ContactoUNDAV.InputEpochFormat = 'TAIModJulian';
+ContactoUNDAV.InitialEpoch = '21545';
+ContactoUNDAV.StepSize = 10;
+ContactoUNDAV.FinalEpoch = '21545.138';
+ContactoUNDAV.UseLightTimeDelay = true;
+ContactoUNDAV.UseStellarAberration = true;
+ContactoUNDAV.WriteReport = true;
+ContactoUNDAV.RunMode = Automatic;
+ContactoUNDAV.UseEntireInterval = true;
+ContactoUNDAV.Observers = {UNDAV_Station};
+ContactoUNDAV.LightTimeDirection = Transmit;
+ContactoUNDAV.LeftJustified = false;
+ContactoUNDAV.ReportPrecision = 6;
+ContactoUNDAV.ReportFormat = 'Legacy';
+ContactoUNDAV.IntervalStepSize = 0;
+ContactoUNDAV.ReportTimeFormat = 'UTCGregorian';
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+Create ReportFile TelemetriaSat1;
+TelemetriaSat1.SolverIterations = Current;
+TelemetriaSat1.UpperLeft = [ 0 0 ];
+TelemetriaSat1.Size = [ 0 0 ];
+TelemetriaSat1.RelativeZOrder = 0;
+TelemetriaSat1.Maximized = false;
+TelemetriaSat1.Filename = '@@NOMBRE_ESCENARIO@@_Telemetria.csv';
+TelemetriaSat1.Precision = 16;
+TelemetriaSat1.Add = {Sat1.UTCGregorian, Sat1.Earth.Latitude, Sat1.Earth.Longitude, Sat1.Earth.Altitude, BateriaWh, DoD_Actual};
+TelemetriaSat1.WriteHeaders = true;
+TelemetriaSat1.LeftJustify = On;
+TelemetriaSat1.ZeroFill = Off;
+TelemetriaSat1.FixedWidth = true;
+TelemetriaSat1.Delimiter = ' ';
+TelemetriaSat1.ColumnWidth = 23;
+TelemetriaSat1.WriteReport = true;
+TelemetriaSat1.AppendToExistingFile = false;
+
+% OpenFramesInterface eliminado: no compatible con modo consola (GmatConsole)
+
+%----------------------------------------
+%---------- Variables
+%----------------------------------------
+Create Variable BateriaWh BateriaMax BateriaMin;
+Create Variable PasoSeg ProximoPaso;
+Create Variable DeltaE_Sol DeltaE_Eclipse;
+Create Variable DoD_Actual DoD_Acum_Eclipse DoD_Limite_Wh;
+Create Variable EstadoAnterior EarthRad;
+Create Variable SatX SatY SatZ;
+Create Variable SunX SunY SunZ;
+Create Variable DotSatSun SunMag PerpDist;
+@@VARS_EXTRA@@
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+@@MISSION_SEQUENCE@@
