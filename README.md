@@ -1,9 +1,12 @@
 # Nanosatelite-ejecutor-simulaciones-gmat
 
 Herramienta para la automatización de simulaciones energéticas en GMAT (General Mission Analysis Tool) mediante Python. Este proyecto permite ejecutar matrices de escenarios paramétricos para caracterizar el comportamiento de un nanosatélite 3U.
+
+
 Propósito
 
 Esta herramienta nace con el objetivo de realizar múltiples simulaciones secuenciales en GMAT variando variables críticas (como el consumo en Watts o la eficiencia de los paneles) de forma automática, eliminando el error humano en la configuración manual de scripts.
+
 Componentes
 - Python (Automatizador)
 

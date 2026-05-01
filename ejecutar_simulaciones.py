@@ -21,15 +21,17 @@ from datetime import datetime
 from pathlib import Path
 
 # ============================================================
-# CONFIGURACION - AJUSTAR SEGUN TU SISTEMA
+# CARGA DE CONFIGURACION LOCAL
 # ============================================================
+try:
+    from config import GMAT_CONSOLE, CARPETA_SCRIPTS, CARPETA_OUTPUT, CARPETA_RESULTS
+except ImportError:
+    print("ERROR: No se encontró 'config.py'.")
+    print("Copia 'config.py.example' a 'config.py' y ajusta tus rutas locales.")
+    exit(1)
 
-GMAT_CONSOLE   = "/home/danilo/Escritorio/GMAT/R2026a/bin/GmatConsole"
-CARPETA_SCRIPTS = "/home/danilo/Documentos/MisMisionesGMAT"
-CARPETA_OUTPUT  = "/home/danilo/Escritorio/GMAT/R2026a/output"
-CARPETA_RESULTS = "/home/danilo/Documentos/MisMisionesGMAT/resultados"
-TEMPLATE        = os.path.join(CARPETA_SCRIPTS, "SAT1_Template.script")
-
+# El template se mantiene relativo a la carpeta de scripts configurada
+TEMPLATE = os.path.join(CARPETA_SCRIPTS, "SAT1_Template.script")
 DURACION_SECS   = 691200.0   # 8 dias
 
 # Constantes del panel solar (fijas para todos los escenarios)

@@ -1,0 +1,7 @@
+# config.py.example
+# Renombrar este archivo a config.py y completar con las rutas locales
+
+GMAT_CONSOLE    = "/ruta/a/tu/GmatConsole"
+CARPETA_SCRIPTS = "/ruta/a/tu/MisMisionesGMAT"
+CARPETA_OUTPUT  = "/ruta/a/tu/GMAT/output"
+CARPETA_RESULTS = "/ruta/a/tu/MisMisionesGMAT/resultados"

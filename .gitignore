@@ -1,0 +1,17 @@
+# Configuración local (rutas y variables privadas)
+config.py
+
+# Directorios de salida
+resultados/
+output/
+
+# Scripts generados dinámicamente por el automatizador
+# Bloqueamos los que empiezan con E1, E2 y E3 para no borrar el Template
+E1_*.script
+E2_*.script
+E3_*.script
+
+# Archivos temporales de Python y sistema
+__pycache__/
+*.py[cod]
+.DS_Store
