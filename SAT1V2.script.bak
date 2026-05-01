@@ -1,0 +1,214 @@
+%General Mission Analysis Tool (GMAT) Script
+%Created: 2026-04-11 - Version corregida sin plugin ElectricPowerSystem
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+Create Spacecraft Sat1;
+Sat1.DateFormat = UTCGregorian;
+Sat1.Epoch = '21 Apr 2026 11:30:00.000';
+Sat1.CoordinateSystem = EarthMJ2000Eq;
+Sat1.DisplayStateType = Keplerian;
+Sat1.SMA = 7178.136299999999;
+Sat1.ECC = 0.0009999999999998818;
+Sat1.INC = 98.59999999999999;
+Sat1.RAAN = 13;
+Sat1.AOP = 0;
+Sat1.TA = 359.9999991462263;
+Sat1.DryMass = 3;
+Sat1.Cd = 2.2;
+Sat1.Cr = 1.8;
+Sat1.DragArea = 0.03;
+Sat1.SRPArea = 0.03;
+Sat1.SPADDragScaleFactor = 1;
+Sat1.SPADSRPScaleFactor = 1;
+Sat1.AtmosDensityScaleFactor = 1;
+Sat1.ExtendedMassPropertiesModel = 'None';
+Sat1.NAIFId = -10005001;
+Sat1.NAIFIdReferenceFrame = -9005001;
+Sat1.OrbitColor = Red;
+Sat1.TargetColor = Teal;
+Sat1.Id = 'SatId';
+Sat1.Attitude = CoordinateSystemFixed;
+Sat1.ModelFile = 'aura.3ds';
+Sat1.ModelScale = 1;
+Sat1.AttitudeDisplayStateType = 'Quaternion';
+Sat1.AttitudeRateDisplayStateType = 'AngularVelocity';
+Sat1.AttitudeCoordinateSystem = EarthMJ2000Eq;
+Sat1.EulerAngleSequence = '321';
+
+%----------------------------------------
+%---------- Ground Station (UNDAV)
+%----------------------------------------
+Create GroundStation UNDAV_Station;
+UNDAV_Station.CentralBody = Earth;
+UNDAV_Station.StateType = Spherical;
+UNDAV_Station.HorizonReference = Sphere;
+UNDAV_Station.Location1 = -34.66;
+UNDAV_Station.Location2 = 301.61;
+UNDAV_Station.Location3 = 0.01;
+UNDAV_Station.Id = 'StationId';
+UNDAV_Station.MinimumElevationAngle = 7;
+UNDAV_Station.IonosphereModel = 'None';
+UNDAV_Station.TroposphereModel = 'None';
+UNDAV_Station.DataSource = 'Constant';
+UNDAV_Station.Temperature = 295.1;
+UNDAV_Station.Pressure = 1013.5;
+UNDAV_Station.Humidity = 55;
+
+%----------------------------------------
+%---------- Variables modelo de energia
+%   P_panel = 1361 W/m2 * 0.03 m2 * 0.18 = 7.3494 W
+%   Consumo = 2.0 W constantes
+%   Paso = 60 s
+%   En sol:     +( 7.3494 - 2.0 ) * 60/3600 = +0.08916 Wh
+%   En eclipse: -(2.0)            * 60/3600 = -0.03333 Wh
+%----------------------------------------
+Create Variable BateriaWh;
+Create Variable EnSol;
+Create Variable DeltaE_Sol;
+Create Variable DeltaE_Eclipse;
+Create Variable BateriaMax;
+Create Variable BateriaMin;
+Create Variable PasoSeg;
+Create Variable ProximoPaso;
+Create Variable ContadorPaso;   % Contador de pasos dentro del periodo
+Create Variable PasosEnSol;     % Pasos en sol por periodo
+Create Variable PasosPorPeriodo;% Total de pasos por periodo orbital
+%----------------------------------------
+%---------- ForceModel y Propagador
+%----------------------------------------
+Create ForceModel EarthPointProp_ForceModel;
+EarthPointProp_ForceModel.CentralBody = Earth;
+EarthPointProp_ForceModel.PrimaryBodies = {Earth};
+EarthPointProp_ForceModel.Drag = None;
+EarthPointProp_ForceModel.SRP = Off;
+EarthPointProp_ForceModel.RelativisticCorrection = Off;
+EarthPointProp_ForceModel.ErrorControl = RSSStep;
+EarthPointProp_ForceModel.GravityField.Earth.Degree = 4;
+EarthPointProp_ForceModel.GravityField.Earth.Order = 4;
+EarthPointProp_ForceModel.GravityField.Earth.PotentialFile = 'JGM2.cof';
+EarthPointProp_ForceModel.GravityField.Earth.TideModel = 'None';
+
+Create Propagator EarthPointProp;
+EarthPointProp.FM = EarthPointProp_ForceModel;
+EarthPointProp.Type = RungeKutta89;
+EarthPointProp.InitialStepSize = 60;
+EarthPointProp.Accuracy = 9.999999999999999e-12;
+EarthPointProp.MinStep = 0.001;
+EarthPointProp.MaxStep = 2700;
+EarthPointProp.MaxStepAttempts = 50;
+EarthPointProp.StopIfAccuracyIsViolated = true;
+
+%----------------------------------------
+%---------- Eclipse Locator
+%----------------------------------------
+Create EclipseLocator EclipseSat1;
+EclipseSat1.Spacecraft = Sat1;
+EclipseSat1.Filename = 'Eclipses_Nanosat_V2.txt';
+EclipseSat1.OccultingBodies = {Earth};
+EclipseSat1.InputEpochFormat = 'TAIModJulian';
+EclipseSat1.InitialEpoch = '21545';
+EclipseSat1.StepSize = 10;
+EclipseSat1.FinalEpoch = '21545.138';
+EclipseSat1.UseLightTimeDelay = true;
+EclipseSat1.UseStellarAberration = true;
+EclipseSat1.WriteReport = true;
+EclipseSat1.RunMode = Automatic;
+EclipseSat1.UseEntireInterval = true;
+EclipseSat1.EclipseTypes = {'Umbra', 'Penumbra'};
+
+%----------------------------------------
+%---------- Contact Locator
+%----------------------------------------
+Create ContactLocator ContactoUNDAV;
+ContactoUNDAV.Target = Sat1;
+ContactoUNDAV.Filename = 'Contactos_UNDAV_V2.txt';
+ContactoUNDAV.InputEpochFormat = 'TAIModJulian';
+ContactoUNDAV.InitialEpoch = '21545';
+ContactoUNDAV.StepSize = 10;
+ContactoUNDAV.FinalEpoch = '21545.138';
+ContactoUNDAV.UseLightTimeDelay = true;
+ContactoUNDAV.UseStellarAberration = true;
+ContactoUNDAV.WriteReport = true;
+ContactoUNDAV.RunMode = Automatic;
+ContactoUNDAV.UseEntireInterval = true;
+ContactoUNDAV.Observers = {UNDAV_Station};
+ContactoUNDAV.LightTimeDirection = Transmit;
+ContactoUNDAV.ReportPrecision = 6;
+ContactoUNDAV.ReportFormat = 'Legacy';
+ContactoUNDAV.ReportTimeFormat = 'UTCGregorian';
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+Create ReportFile TelemetriaSat1;
+TelemetriaSat1.Filename = 'Telemetria_Nanosat_V2.csv';
+TelemetriaSat1.Precision = 16;
+TelemetriaSat1.Add = {Sat1.UTCGregorian, Sat1.Earth.Latitude, Sat1.Earth.Longitude, Sat1.Earth.Altitude, BateriaWh};
+TelemetriaSat1.WriteHeaders = true;
+TelemetriaSat1.LeftJustify = On;
+TelemetriaSat1.ZeroFill = Off;
+TelemetriaSat1.FixedWidth = true;
+TelemetriaSat1.Delimiter = ' ';
+TelemetriaSat1.ColumnWidth = 23;
+TelemetriaSat1.WriteReport = true;
+TelemetriaSat1.AppendToExistingFile = false;
+
+Create OpenFramesInterface DefaultOrbitView;
+DefaultOrbitView.Add = {Sat1, Earth};
+DefaultOrbitView.CoordinateSystem = EarthMJ2000Eq;
+DefaultOrbitView.DrawObject = [ true true ];
+DefaultOrbitView.Axes = On;
+DefaultOrbitView.XYPlane = On;
+DefaultOrbitView.EnableStars = On;
+DefaultOrbitView.ShowPlot = true;
+DefaultOrbitView.ShowToolbar = true;
+DefaultOrbitView.MultisampleAntiAliasing = On;
+DefaultOrbitView.MSAASamples = 2;
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+BeginMissionSequence;
+
+BateriaWh      = 38;
+BateriaMax     = 40;
+BateriaMin     = 4;
+PasoSeg        = 60;
+ProximoPaso    = 60;
+DeltaE_Sol     = 0.08916;
+DeltaE_Eclipse = -0.03333;
+
+% Periodo orbital aprox 6045 s a 800 km
+% Eclipse aprox 35% del periodo = 2116 s -> 2100 s en sombra cada ~6000 s
+% Patron por paso de 60 s: cada 100 pasos (6000 s) -> 35 en eclipse, 65 en sol
+% Usamos el modulo del tiempo transcurrido para simular el patron sol/eclipse
+
+While Sat1.ElapsedSecs < 86400.0
+
+   Propagate EarthPointProp(Sat1) {Sat1.ElapsedSecs = ProximoPaso};
+   ProximoPaso = ProximoPaso + PasoSeg;
+
+   % Detectar eclipse por geometria: usar latitud solar del satelite
+   % En orbita heliosincronica a 800 km, altitud no cambia el eclipse
+   % Aproximacion: usar modulo de ElapsedSecs sobre periodo orbital
+   % Periodo = 6045 s; eclipse ocupa los ultimos ~2116 s del periodo
+   % Si resto_periodo > 3929 -> eclipse; sino -> sol
+   % Variable auxiliar para el modulo
+   EnSol = Sat1.ElapsedSecs - (6045 * floor(Sat1.ElapsedSecs / 6045));
+
+   If EnSol > 3929
+      BateriaWh = BateriaWh + DeltaE_Eclipse;
+   Else
+      BateriaWh = BateriaWh + DeltaE_Sol;
+   EndIf;
+
+   If BateriaWh > BateriaMax
+      BateriaWh = BateriaMax;
+   EndIf;
+   If BateriaWh < BateriaMin
+      BateriaWh = BateriaMin;
+   EndIf;
+
+EndWhile;
