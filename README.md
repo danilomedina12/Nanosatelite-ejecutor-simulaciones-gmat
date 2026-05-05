@@ -31,6 +31,7 @@ Script de misión configurado para un CubeSat 3U en órbita heliosíncrona (SSO)
     Lógica Dinámica: Conmutación de cargas (picos de 15W/20W) durante ventanas de contacto con la estación terrestre (UNDAV).
 
 - Script analizador de datos
+
     El script realiza una correlación cruzada entre múltiples fuentes de datos independientes para identificar estados críticos de la misión donde la generación solar es nula y la demanda energética es máxima. Su objetivo es extraer patrones de comportamiento que validen la resiliencia del nanosatélite ante fallos de actitud o degradación de paneles.
 
     El analizador utiliza una lógica de conjuntos para identificar "Hits" (puntos críticos de muestreo). Un hit se define matemáticamente como la intersección temporal de dos condiciones estresantes para el subsistema de potencia (EPS). 
