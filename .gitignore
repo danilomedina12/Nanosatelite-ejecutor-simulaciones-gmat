@@ -4,6 +4,8 @@ config.py
 # Directorios de salida
 resultados/
 output/
+resultados_analizador_universal/
+
 
 # Scripts generados dinámicamente por el automatizador
 # Bloqueamos los que empiezan con E1, E2 y E3 para no borrar el Template
@@ -19,3 +21,19 @@ __pycache__/
 # reporte y detalles de hits del analizador
 reporte_fvs.txt
 detalle_hits_fvs.txt
+
+# test de satnogs
+# test_api_satnogs.py
+test_api_filter_norad.py
+# test_api_dashboard.py
+# misiones_outer_join.py
+satnogs_ingestor.py
+
+# resultados del outer join de las misiones
+telemetria_*.csv
+
+# directorio de resultados de GMAT
+EscenariosGMAT/
+
+# DIRECTORIO DE TELEMETRIA DE SATNOGS
+TelemetriaSatNOGS/
