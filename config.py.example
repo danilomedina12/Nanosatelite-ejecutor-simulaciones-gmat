@@ -5,3 +5,15 @@ GMAT_CONSOLE    = "/ruta/a/tu/GmatConsole"
 CARPETA_SCRIPTS = "/ruta/a/tu/MisMisionesGMAT"
 CARPETA_OUTPUT  = "/ruta/a/tu/GMAT/output"
 CARPETA_RESULTS = "/ruta/a/tu/MisMisionesGMAT/resultados"
+
+# --- CONFIGURACIÓN SATNOGS ---
+SATNOGS_API_URL = "https://db.satnogs.org/api/telemetry/"
+GRAFANA_URL = "https://dashboard.satnogs.org/api/ds/query?ds_type=influxdb"
+
+# Misiones reales a investigar (NORAD ID: Configuración)
+
+MISIONES_REALES = {
+    "48850": {"nombre": "RamSat", "key_bat": "vbat"},
+    "60246": {"nombre": "CatSat", "key_bat": "vbat"},
+    "62931": {"nombre": "LASARSAT", "key_bat": "vbat"}
+}
