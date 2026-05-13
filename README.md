@@ -30,26 +30,40 @@ Script de misión configurado para un CubeSat 3U en órbita heliosíncrona (SSO)
 
     Lógica Dinámica: Conmutación de cargas (picos de 15W/20W) durante ventanas de contacto con la estación terrestre (UNDAV).
 
-- Script analizador de datos
+- Script Analizador universal de Telemetría
 
-    El script realiza una correlación cruzada entre múltiples fuentes de datos independientes para identificar estados críticos de la misión donde la generación solar es nula y la demanda energética es máxima. Su objetivo es extraer patrones de comportamiento que validen la resiliencia del nanosatélite ante fallos de actitud o degradación de paneles.
+    Este componente ha evolucionado de un script específico para GMAT a un motor de análisis multifuente. Su función es realizar una correlación cruzada entre telemetría heterogénea (datos reales de SatNOGS) y escenarios determinísticos (GMAT) para identificar estados críticos de la misión.
 
-    El analizador utiliza una lógica de conjuntos para identificar "Hits" (puntos críticos de muestreo). Un hit se define matemáticamente como la intersección temporal de dos condiciones estresantes para el subsistema de potencia (EPS). 
-    
+    El analizador utiliza una arquitectura modular basada en el Patrón Estrategia (Strategy), lo que permite procesar distintas misiones sin modificar el código núcleo, cumpliendo con el principio Abierto/Cerrado (SOLID).
+    Lógica de Identificación de "Hits"
+
+    Un "hit" se define matemáticamente como la intersección temporal de dos condiciones que estresan el subsistema de potencia (EPS): la falta de generación y la alta demanda operativa.
+
     ![alt text](image.png)
 
-    Factores Determinantes:
-    - Falta de entrada: Corriente de paneles solares en 0 (Umbra/Penumbra).  
-    - Alta demanda: Picos de consumo (15W/20W) por transmisión activa hacia la estación terrestre (UNDAV).
+    Indicadores e Inferencias
+
+    Dado que la telemetría real no siempre etiqueta los eventos, el framework aplica reglas específicas según la fuente:
+    - Modo GMAT: Intersección directa entre intervalos de archivos de eventos y telemetría.
+    - Modo Empírico (SatNOGS): Inferencia mediante indicadores indirectos:
+        - Eclipse: Corriente de carga ≈ 0, voltaje de paneles nulo o caída térmica en arreglos solares.
+        - Carga Crítica: Incremento en contadores de paquetes, picos de corriente en el bus o aumento de temperatura en el amplificador de radio (PA).
+    
+    Componentes del Framework
+    - test_api_satnogs.py: Script de descubrimiento inicial que consulta la API de SatNOGS para localizar identificadores NORAD y verificar el estado operativo (alive/re-entered) de las misiones.
+    - test_api_dashboard.py: Herramienta de inspección que consulta el esquema de InfluxDB (SHOW FIELD KEYS) para listar exhaustivamente todas las variables de telemetría disponibles para un NORAD ID específico.
+    - analizador_universal.py: El motor principal "ciego" que orquesta el análisis, detecta automáticamente el tipo de satélite y genera los reportes.
+    - reglas_misiones.py: El cerebro modular que contiene las estrategias específicas (umbrales, divisores y heurísticas) para cada misión (CatSat, LASARsat, RamSat, GMAT).
+    - misiones_outer_join.py: Script de pre-procesamiento que unifica métricas fragmentadas de la API de SatNOGS mediante uniones externas (Outer Join).
 
     Características Principales
-    - Discretización de Tiempo: Convierte intervalos de eventos de GMAT y telemetría de estado en objetos datetime de alta precisión para su cruce lógico.  
-    - Análisis de 13 Escenarios: Procesa de forma masiva los datos de la matriz de sensibilidad (variaciones de eficiencia del 50% al 100% y modos de 3W a 20W).  
-    - Agnóstico al Volumen: Diseñado para escalar a cientos de simulaciones, permitiendo realizar stress-testing del modelo probabilístico.  
-    - Detección de Degradación: Identifica patrones de "deuda energética" acumulativa u "efecto memoria" entre jornadas de simulación.
+    - Agnóstico a la fuente: Procesa archivos CSV tanto de GMAT como de telemetría extendida real.
+    - Escalabilidad: Permite integrar nuevas misiones en minutos mediante la creación de una nueva clase de estrategia.
+    - Normalización Dinámica: Aplica factores de escala (divisores 10, 100, 1000) detectados por ingeniería inversa en los esquemas de InfluxDB.
+    - Stress-Testing: Identifica patrones de "deuda energética" acumulativa tanto en modelos teóricos como en datos de vuelo.
 
-    Devuelve dos archivos en su salida: 
-    - reporte_fvs.txt: Un resumen ejecutivo por escenario que detalla puntos críticos, niveles de batería inicial/final y estado de seguridad del umbral (32 Wh). 
-    - detalle_hits_fvs.txt: Un registro tipo "bisturí" con la traza temporal minuto a minuto de cada hit, facilitando la visualización de la pendiente de descarga y la identificación de clústeres de pases nocturnos.
-
+    Productos de Salida
+    Los resultados se consolidan en la carpeta resultados_analizador_universal/:
+    - reporte_fvs_*.txt: Resumen ejecutivo que detalla puntos críticos, niveles de batería y validación de márgenes de seguridad.
+    - detalle_hits_*.txt: Registro tipo "bisturí" con la traza temporal minuto a minuto de cada hit, facilitando la visualización de la pendiente de descarga real.
 
