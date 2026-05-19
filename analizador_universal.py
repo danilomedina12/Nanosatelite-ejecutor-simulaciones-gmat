@@ -102,11 +102,14 @@ for path_archivo in archivos_a_analizar:
     lineas_reporte.append(resumen)
 
 # ============================================================
-# 4. ESCRITURA DE REPORTES EN EL DIRECTORIO
+# 4. ESCRITURA DE REPORTES CON TIMING DEL SISTEMA
 # ============================================================
 
-path_resumen = os.path.join(DIR_RESULTADOS, "reporte_fvs_universal.txt")
-path_detalle = os.path.join(DIR_RESULTADOS, "detalle_hits_universal.txt")
+# Generamos el timestamp para evitar la sobreescritura accidental
+timestamp_ejecucion = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+path_resumen = os.path.join(DIR_RESULTADOS, f"reporte_fvs_universal_{timestamp_ejecucion}.txt")
+path_detalle = os.path.join(DIR_RESULTADOS, f"detalle_hits_universal_{timestamp_ejecucion}.txt")
 
 with open(path_resumen, "w") as f_res:
     f_res.writelines(lineas_reporte)
@@ -115,4 +118,5 @@ with open(path_detalle, "w") as f_det:
     f_det.writelines(lineas_detalle)
 
 print(f"\n--- PROCESO COMPLETADO ---")
-print(f"✅ Resultados guardados en la carpeta: {DIR_RESULTADOS}/")
+print(f"✅ Reporte consolidado guardado en: {path_resumen}")
+print(f"✅ Detalle granular guardado en: {path_detalle}")
