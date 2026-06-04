@@ -22,7 +22,7 @@ DIR_ENTRADA = args.dir # se toma el directorio que se escribió por terminal
 DIR_RESULTADOS = "resultados_analizador_universal"
 if not os.path.exists(DIR_RESULTADOS):
     os.makedirs(DIR_RESULTADOS)
-    print(f"📁 Directorio '{DIR_RESULTADOS}' creado.")
+    print(f"Directorio '{DIR_RESULTADOS}' creado.")
 
 # ============================================================
 # 2. MOTOR DE ANÁLISIS GENÉRICO
@@ -33,7 +33,7 @@ def procesar_archivo(path_csv):
         # Algunos CSV de GMAT pueden tener espacios en los nombres de columnas
         df = pd.read_csv(path_csv)
     except Exception as e:
-        print(f"  ⚠️ Error leyendo {path_csv}: {e}")
+        print(f" Error leyendo {path_csv}: {e}")
         return [], "Error de Lectura"
 
     columnas = df.columns.tolist()
@@ -93,7 +93,7 @@ for path_archivo in archivos_a_analizar:
             lineas_detalle.append(f"{str(h['Tiempo']):<25} | {h['Bateria']:<15}\n")
         lineas_detalle.append("-" * 60 + "\n")
         
-        print(f"  ✅ ÉXITO: {len(hits)} eventos críticos encontrados.")
+        print(f"ÉXITO: {len(hits)} eventos críticos encontrados.")
     else:
         resumen += "  - Sin eventos críticos detectados.\n"
         print("  [i] Sin eventos críticos.")
@@ -118,5 +118,5 @@ with open(path_detalle, "w") as f_det:
     f_det.writelines(lineas_detalle)
 
 print(f"\n--- PROCESO COMPLETADO ---")
-print(f"✅ Reporte consolidado guardado en: {path_resumen}")
-print(f"✅ Detalle granular guardado en: {path_detalle}")
+print(f"Reporte consolidado guardado en: {path_resumen}")
+print(f"Detalle granular guardado en: {path_detalle}")
