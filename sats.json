@@ -1,0 +1,35 @@
+{
+  "CatSat": {
+    "norad": 60246,
+    "from": "now-60d",
+    "to": "now",
+    "metrics": {
+      "voltaje_bateria_V": { "field": "batt_vbatt", "divisor": 1000 },
+      "corriente_carga_A": { "field": "p60_batt_chrg", "divisor": 1000 },
+      "temp_panel_C": { "field": "suns_temp_xpos", "divisor": 1 },
+      "temp_radio_C": { "field": "ax100_temp_pa", "divisor": 10 }
+    }
+  },
+  "LASARsat": {
+    "norad": 62391,
+    "from": "now-60d",
+    "to": "now",
+    "metrics": {
+      "voltaje_bateria_V": { "field": "psu_battery", "divisor": 1000 },
+      "corriente_paneles_A": { "field": "psu_cur_in", "divisor": 1000 },
+      "temp_panel_C": { "field": "sol_temp_xp", "divisor": 100 },
+      "paquetes_tx": { "field": "uhf_tx_cnt", "divisor": 1 }
+    }
+  },
+  "RamSat": {
+    "norad": 48850,
+    "from": "1623715200000",
+    "to": "1628899200000",
+    "metrics": {
+      "voltaje_bateria_V": { "field": "battery_voltage", "divisor": 100 },
+      "voltaje_panel_V": { "field": "voltage_feeding_bcr1_x", "divisor": 100 },
+      "temp_panel_C": { "field": "temperature_pos_x_array", "divisor": 10 },
+      "corriente_bus_A": { "field": "battery_bus_current", "divisor": 100 }
+    }
+  }
+}
